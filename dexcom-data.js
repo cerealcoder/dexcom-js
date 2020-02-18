@@ -47,21 +47,21 @@ DexcomData.login = async function(username, authcode) {
     authcode = 'authcode1';
   }
 
-	// Step Four: Obtain Access Token
-	const urlEncodedForm = querystring.stringify({
-		client_id:     this.options.clientId,
-		client_secret: this.options.clientSecret,
-		code:          authcode,
-		grant_type:    'authorization_code',
-		redirect_uri:  this.options.redirectUri,
-	});
+  // Step Four: Obtain Access Token
+  const urlEncodedForm = querystring.stringify({
+    client_id:     this.options.clientId,
+    client_secret: this.options.clientSecret,
+    code:          authcode,
+    grant_type:    'authorization_code',
+    redirect_uri:  this.options.redirectUri,
+  });
   const httpConfig = {
     headers: {
       "Content-Type":  "application/x-www-form-urlencoded"
     }
   }
 
-	let result = await httpClient.post(this.options.apiUri + '/v2/oauth2/token', urlEncodedForm, httpConfig);
+  let result = await httpClient.post(this.options.apiUri + '/v2/oauth2/token', urlEncodedForm, httpConfig);
   //console.log(result.status);
   //console.log(result.data);
   let tokenSet = result.data;
@@ -88,15 +88,15 @@ DexcomData.getTokenSet = async function(currTokenSet, force) {
 
   this.verifyOptions(this.options);
 
-	// @see https://developer.dexcom.com/authentication
-	// Step Six: Refresh Tokens
-	const urlEncodedForm = querystring.stringify({
-		client_id:     this.options.clientId,
-		client_secret: this.options.clientSecret,
-		refresh_token: currTokenSet.refresh_token,
-		grant_type:   'refresh_token',
-		redirect_uri:  this.options.redirectUri,
-	});
+  // @see https://developer.dexcom.com/authentication
+  // Step Six: Refresh Tokens
+  const urlEncodedForm = querystring.stringify({
+    client_id:     this.options.clientId,
+    client_secret: this.options.clientSecret,
+    refresh_token: currTokenSet.refresh_token,
+    grant_type:   'refresh_token',
+    redirect_uri:  this.options.redirectUri,
+  });
   const httpConfig = {
     headers: {
       "cache-control": "no-cache",
@@ -104,7 +104,7 @@ DexcomData.getTokenSet = async function(currTokenSet, force) {
     }
   }
 
-	let result = await httpClient.post(this.options.apiUri + '/v2/oauth2/token', urlEncodedForm, httpConfig)
+  let result = await httpClient.post(this.options.apiUri + '/v2/oauth2/token', urlEncodedForm, httpConfig)
   //console.log(result.status);
   //console.log(result.data);
   let tokenSet = result.data;
