@@ -47,48 +47,6 @@ DexcomData.login = async function(username, authcode) {
     authcode = 'authcode1';
   }
 
-  /*
-  const parameters = {
-		client_id:     this.options.clientId,
-		redirect_uri:  this.options.redirectUri,
-    response_type: 'code',
-    scope: 'offline_access',
-  };
-
-  console.log(parameters);
-  console.log(username);
-  console.log(this.options.apiUri +'/v2/oauth2/login');
-
-  let result = await httpClient.get(this.options.apiUri +'/v2/oauth2/login', { params: parameters });
-  //console.log(result);
-  //console.log(result.status);
-  //console.log(result.data);
-  console.log(result.res);
-
-  fs.writeFileSync('dexcom.html', result.data);
-
-  const urlEncodedForm = querystring.stringify({
-    userName: username,
-    redirectUrl: this.options.redirectUri,
-    scope: 'offline_access',
-    clientId: this.options.clientId,
-  });
-  const httpConfig = {
-    headers: {
-      "Content-Type":  "application/x-www-form-urlencoded"
-    }
-  }
-  //console.log(urlEncodedForm);
-	//result = await httpClient.post(this.options.apiUri + '/sblogin/authcode', urlEncodedForm, httpConfig)
-  //console.log(result.status);
-  //console.log(result.data);
-
-  return result.data;
-  */
-
-  // should submit:
-  // https://developer.dexcom.com/sandbox-login?client_id=bb70I4QSgR3AfbcUWpvA65vxawfYpwc2&redirect_uri=https%3A%2F%2Fhre.umlss.com%2FdexcomOauth.html&response_type=code&scope=
-
 	// Step Four: Obtain Access Token
 	const urlEncodedForm = querystring.stringify({
 		client_id:     this.options.clientId,
