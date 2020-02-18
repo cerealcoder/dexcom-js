@@ -1,0 +1,17 @@
+version: '3'
+services:
+  datatest:
+    #image: aws/codebuild/nodejs:8.11.0
+    image: node:chakracore-8.11.1
+    environment:
+      - CFT_STACK_NAME
+      - AWS_ACCESS_KEY 
+      - AWS_SECRET_KEY
+      - AWS_REGION
+      - NPM_TOKEN
+        # @see https://github.com/aws/aws-sdk-js/pull/1391
+      - AWS_SDK_LOAD_CONFIG=1
+    volumes:
+    - $HOME/.aws/:/root/.aws/:ro
+    - ../:/home/test/
+    command: 'bash -c "cd /home/test;npm install;npm test *.js"'

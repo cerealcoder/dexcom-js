@@ -1,0 +1,23 @@
+{
+  "name": "umlss-dexcom-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/tape/bin/tape"
+  },
+  "author": "pszabop",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "qs": "^6.7.0",
+    "tape": "^4.10.1",
+    "tape-promise": "^4.0.0",
+    "node-fetch": "^2.6.0",
+    "random-js": "^2.1.0",
+    "underscore": "^1.9.1",
+    "js-yaml": "^3.13.1",
+    "deep-diff": "^1.0.2"
+  }
+}
