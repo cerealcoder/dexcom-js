@@ -8,7 +8,7 @@ const fs = require('fs');
 const dexcom = require('../dexcom-data.js');
 
 const options = yaml.safeLoad(fs.readFileSync('secrets.yml', 'utf8'));
-console.log(options);
+//console.log(options);
 dexcom.setOptions(options);
 
 test('ensure dexcom sandbox login', async function (t) {
