@@ -9,7 +9,6 @@
   * [doEstimatedGlucoseValuesExist](#doestimatedglucosevaluesexist)
   * [getEstimatedGlucoseValues](#getestimatedglucosevalues)
 - [Testing](#testing)
-- [Authors](#authors)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -177,9 +176,3 @@ either interactively (via the Docker container's bash shell), or non-interactive
    Non-interactively:
 
         docker-compose run datatest
-
-
-# Authors
-
-* [Paul Szabo](https://github.com/pszabop/)
-* [John Moren](https://github.com/cerealcoder)
