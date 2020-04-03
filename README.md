@@ -40,8 +40,11 @@ DexcomJS.setOptions({
 });
 ```
 
-## Determine if estimated glucose values exist
+## Determine if estimated glucose values exist for the previous 24 hours
 ```
+const secondsPerDay = 86400;
+const millisecondsPerSecond = 1000;
+
 const oauthTokens = {
   accessToken: 'your access token',
   refreshToken: 'your refresh token',
@@ -61,8 +64,11 @@ if (oauthTokens in results) {
 }
 ```
 
-## Get estimated glucose values
+## Get estimated glucose values for the previous 24 hours
 ```
+const secondsPerDay = 86400;
+const millisecondsPerSecond = 1000;
+
 const oauthTokens = {
   accessToken: 'your access token',
   refreshToken: 'your refresh token',
@@ -148,7 +154,9 @@ in the return value will exist. Otherwise, property `oauthTokens` will not exist
 
 # Testing
 All unit tests for this package are contained within the `test` directory. They are run within a Docker container,
-either interactively (via the Docker container's bash shell), or non-interactively.
+either interactively (via the Docker container's bash shell), or non-interactively. Furthermore, the unit tests
+interact with the Dexcom [sandbox](https://developer.dexcom.com/sandbox-data), thus requiring a network connection in 
+order to function properly.
 
 1. Create file `test/secrets.yml`.<br>
    Do not commit that file to this, or any other repository, since it contains confidential information.<br>
@@ -159,7 +167,7 @@ either interactively (via the Docker container's bash shell), or non-interactive
         redirectUri: 'your redirect URI'
         apiUri: 'https://sandbox-api.dexcom.com'
    
-   The values in this file will be provided by your developer.dexcom account.
+   The values in this file will be provided by your Dexcom [My Apps](https://developer.dexcom.com/user/me/apps) page.
 
 1. Run the test suite.<br>
    Interactively:
