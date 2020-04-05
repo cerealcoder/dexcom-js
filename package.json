@@ -1,20 +1,21 @@
 {
-  "name": "umlss-dexcom-test",
+  "name": "dexcom-js",
   "version": "1.0.0",
-  "description": "",
+  "description": "An API that provides access to the Dexcom platform for acquiring Continuous Glucose Monitoring data.",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/tape/bin/tape"
+    "test": "echo 'See README for testing procedure.'"
   },
   "author": "pszabop",
   "license": "ISC",
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "axios": "^0.18.0",
+    "deep-diff": "^1.0.2",
+    "jsonschema": "^1.2.4",
+    "jsonwebtoken": "^8.5.1",
     "qs": "^6.7.0",
     "random-js": "^2.1.0",
-    "underscore": "^1.9.1",
-    "jsonwebtoken": "^8.5.1",
-    "deep-diff": "^1.0.2"
-  }
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {}
 }

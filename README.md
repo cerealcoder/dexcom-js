@@ -173,13 +173,17 @@ order to function properly.
    Interactively:
    1. Invoke the Docker container's bash shell:
    
+            cd test
             docker-compose run datatest /bin/bash
          
    1. Run the unit tests:
    
-            cd /home/test/test
+            cd /home/test
             npm install
-            npm test dexcom.js
+            cd test
+            npm install
+            npm test helpers.js
+            npm test index.js
 
    Non-interactively:
 

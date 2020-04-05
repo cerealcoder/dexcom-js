@@ -5,7 +5,7 @@ const test = _test(tape) // decorate tape
 const yaml = require('js-yaml');
 const fs = require('fs');
 
-const dexcom = require('../dexcom-data.js');
+const dexcom = require('../index.js');
 
 const options = yaml.safeLoad(fs.readFileSync('secrets.yml', 'utf8'));
 //console.log(options);
