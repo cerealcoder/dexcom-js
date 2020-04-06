@@ -33,11 +33,22 @@ const schema    = require('./schema.js');
  * values.
  */
 function validateOptions(options) {
-  assert(options, 'Options must be provided');
+  assert(options, 'options must be provided');
 
   const validator = new Validator();
   const validatorResult = validator.validate(options, schema.packageOptions);
   assert(validatorResult.valid, 'options must be valid');
+}
+
+/**
+ * Validates a sandbox authentication code.
+ */
+function validateSandboxAuthcode(authcode) {
+  assert(authcode, 'authcode must be provided');
+
+  const validator = new Validator();
+  const validatorResult = validator.validate(authcode, schema.sandboxAuthCodes);
+  assert(validatorResult.valid, 'authcode must be valid');
 }
 
 /**
@@ -114,7 +125,8 @@ function dexcomifyEpochTime(epochTime) {
 //* Public API *
 //**************
 
-exports.validateOptions     = validateOptions;
-exports.dexcomifyEpochTime  = dexcomifyEpochTime;
-exports.validateTimeWindow  = validateTimeWindow;
-exports.validateOAuthTokens = validateOAuthTokens;
+exports.validateOptions         = validateOptions;
+exports.validateSandboxAuthcode = validateSandboxAuthcode;
+exports.dexcomifyEpochTime      = dexcomifyEpochTime;
+exports.validateTimeWindow      = validateTimeWindow;
+exports.validateOAuthTokens     = validateOAuthTokens;

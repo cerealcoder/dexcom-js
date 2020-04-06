@@ -13,7 +13,7 @@
 
 const httpClient  = require('axios');
 const querystring = require('querystring');
-const helpers     = require('helpers');
+const helpers     = require('./helpers.js');
 
 
 //*************
@@ -113,6 +113,7 @@ DexcomJS.setOptions = function(options) {
  */
 DexcomJS.getSandboxAuthenticationToken = async function(authcode) {
   helpers.validateOptions(this.options);
+  helpers.validateSandboxAuthcode(authcode);
 
   // Issue an HTTP POST to the Dexcom system to obtain the sandbox access token.
   const urlEncodedForm = querystring.stringify({

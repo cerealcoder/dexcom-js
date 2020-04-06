@@ -2,11 +2,14 @@
  * @brief The JSON schema for the objects in this package that will be validated using JSON schema validators.
  */
 
+/**
+ * Epoch time in milliseconds (64-bit value).
+ */
 const epochTime = {
   "id":      "/EpochTime",
   "type":    "integer",
   "minimum": 0,
-  "maximum": 2147483647
+  "maximum": 9223372036854775807,
 };
 
 /**
@@ -36,10 +39,10 @@ const dexcomOAuthToken = {
   "id":   "/DexcomOAuthToken",
   "type": "object",
   "properties": {
-    "access_token":  {"type": "string",  "minLength": 1, "maxLength": 128},
-    "expires_in":    {"type": "integer", "minimum":   0, "maximum": 7200},
+    "access_token":  {"type": "string",  "minLength": 1, "maxLength": 1024},
+    "expires_in":    {"type": "integer", "minimum":   0, "maximum":   7200},
     "token_type":    {"type": "string",  "minLength": 1, "maxLength": 6},
-    "refresh_token": {"type": "string",  "minLength": 1, "maxLength": 256},
+    "refresh_token": {"type": "string",  "minLength": 1, "maxLength": 1024},
   },
   "required": [
     "access_token",
@@ -65,6 +68,22 @@ const oauthTokens = {
   ]
 };
 
+/**
+ * @brief Defines the list of valid sandbox authentication codes.
+ */
+const sandboxAuthCodes = {
+  "id":   "/SandboxAuthCode",
+  "type": "string",
+  "enum": [
+    "authcode1",
+    "authcode2",
+    "authcode3",
+    "authcode4",
+    "authcode5",
+    "authcode6"
+  ]
+};
+
 
 //**************
 //* Public API *
@@ -74,3 +93,4 @@ exports.epochTime        = epochTime;
 exports.packageOptions   = packageOptions;
 exports.dexcomOAuthToken = dexcomOAuthToken;
 exports.oauthTokens      = oauthTokens;
+exports.sandboxAuthCodes = sandboxAuthCodes;
