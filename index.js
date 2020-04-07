@@ -324,6 +324,14 @@ DexcomJS.getDataRange = async function(oauthTokens) {
  *   }
  * }
  *
+ * @param startTime
+ * A number that represents the UTC epoch time, in milliseconds, of the beginning of the time window for which to
+ * acquire calibration events.
+ *
+ * @param endTime
+ * A number that represents the UTC epoch time, in milliseconds, of the end of the time window for which to
+ * acquire calibration events.
+ *
  * @returns a Promise that wraps an object of the following format:
  * {
  *   calibrations: {<object returned by Dexcom API>},
@@ -377,6 +385,14 @@ DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
  *   }
  * }
  *
+ * @param startTime
+ * A number that represents the UTC epoch time, in milliseconds, of the beginning of the time window for which to
+ * acquire statistics.
+ *
+ * @param endTime
+ * A number that represents the UTC epoch time, in milliseconds, of the end of the time window for which to
+ * acquire statistics.
+ *
  * @returns a Promise that wraps an object of the following format:
  * {
  *   statistics: {<object returned by Dexcom API>},
@@ -395,7 +411,7 @@ DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
  *
  * @see https://developer.dexcom.com/post-statistics
  */
-DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
+DexcomJS.getStatistics = async function(oauthTokens, startTime, endTime) {
   helpers.validateOptions(this.options);
   helpers.validateOAuthTokens(oauthTokens);
   helpers.validateTimeWindow(startTime, endTime);
@@ -406,7 +422,50 @@ DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
   const parameters                   = { startDate: startDateString, endDate: endDateString };
   const httpConfig                   = { headers: {Authorization:  `Bearer ${possiblyRefreshedOauthTokens.dexcomOAuthToken.access_token}`}, params: parameters };
 
-  const result = await httpClient.post(`${this.options.apiUri}/v2/users/self/statistics`, httpConfig);
+  const requestBody = {
+    targetRanges: [
+      {
+        name:      'day',
+        startTime: '07:00:00',
+        endTime:   '20:00:00',
+        egvRanges: [
+          {
+            name: 'urgentLow',
+            bound: 55,
+          },
+          {
+            name: 'low',
+            bound: 70,
+          },
+          {
+            name: 'high',
+            bound: 180,
+          },
+        ]
+      },
+      {
+        name:      'night',
+        startTime: '20:00:00',
+        endTime:   '07:00:00',
+        egvRanges: [
+          {
+            name: 'urgentLow',
+            bound: 55,
+          },
+          {
+            name: 'low',
+            bound: 80,
+          },
+          {
+            name: 'high',
+            bound: 200,
+          },
+        ]
+      },
+    ]
+  };
+
+  const result = await httpClient.post(`${this.options.apiUri}/v2/users/self/statistics`, requestBody, httpConfig);
 
   const returnValue = {statistics: result.data};
   if (possiblyRefreshedOauthTokens !== oauthTokens) {
@@ -472,7 +531,7 @@ async function refreshAccessToken(oauthTokens, force) {
     client_id:     this.options.clientId,
     client_secret: this.options.clientSecret,
     refresh_token: oauthTokens.dexcomOAuthToken.refresh_token,
-    grant_type:   'refresh_token',
+    grant_type:    'refresh_token',
     redirect_uri:  this.options.redirectUri,
   });
   const httpConfig = {
