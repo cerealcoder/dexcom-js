@@ -9,9 +9,12 @@
 //* Modules *
 //***********
 
-const assert    = require('assert');
-const Validator = require('jsonschema').Validator;
-const schema    = require('./schema.js');
+const httpClient  = require('axios');
+const assert      = require('assert');
+const Validator   = require('jsonschema').Validator;
+const schema      = require('./schema.js');
+const querystring = require('querystring');
+const options     = require('./options.js');
 
 
 //*************
@@ -189,11 +192,11 @@ async function refreshAccessToken(oauthTokens, force) {
   // @see https://developer.dexcom.com/authentication
   // Step Six: Refresh Tokens
   const urlEncodedForm = querystring.stringify({
-    client_id:     this.options.clientId,
-    client_secret: this.options.clientSecret,
+    client_id:     options.get().clientId,
+    client_secret: options.get().clientSecret,
     refresh_token: oauthTokens.dexcomOAuthToken.refresh_token,
     grant_type:    'refresh_token',
-    redirect_uri:  this.options.redirectUri,
+    redirect_uri:  options.get().redirectUri,
   });
   const httpConfig = {
     headers: {
@@ -202,7 +205,7 @@ async function refreshAccessToken(oauthTokens, force) {
     }
   };
 
-  const result = await httpClient.post(this.options.apiUri + '/v2/oauth2/token', urlEncodedForm, httpConfig);
+  const result = await httpClient.post(`${options.get().apiUri}/v2/oauth2/token`, urlEncodedForm, httpConfig);
   //console.log(result.status);
   //console.log(result.data);
 

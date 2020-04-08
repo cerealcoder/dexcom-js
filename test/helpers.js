@@ -9,10 +9,22 @@
 //* Modules *
 //***********
 
+const yaml          = require('js-yaml');
+const fs            = require('fs');
 const tape          = require('tape');
 const _test         = require('tape-promise').default; // <---- notice 'default'
 const test          = _test(tape); // decorate tape
+const index         = require('../index.js');
 const unitUnderTest = require('../helpers.js');
+
+
+//*************
+//* Constants *
+//*************
+
+const options = yaml.safeLoad(fs.readFileSync('secrets.yml', 'utf8'));
+//console.log(options);
+index.setOptions(options);
 
 
 //**************
@@ -171,4 +183,12 @@ test('Verify validateOAuthTokens()', function (t) {
   t.doesNotThrow(() => {unitUnderTest.validateOAuthTokens(validOAuthTokens);}, 'valid OAuth tokens are accepted.');
 
   t.end();
+});
+
+test('Verify refreshAccessToken()', async function (t) {
+  const oauthTokens = await index.getSandboxAuthenticationToken('authcode6');
+  const result      = await unitUnderTest.refreshAccessToken(oauthTokens, true);
+
+  t.ok('timestamp'        in result, 'result contains timestamp');
+  t.ok('dexcomOAuthToken' in result, 'result contains dexcomOAuthToken');
 });

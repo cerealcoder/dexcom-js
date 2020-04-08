@@ -14,6 +14,7 @@
 const httpClient  = require('axios');
 const querystring = require('querystring');
 const helpers     = require('./helpers.js');
+const options     = require('./options.js');
 
 
 //**************
@@ -24,26 +25,6 @@ const DexcomJS = Object.create({});
 module.exports = DexcomJS;
 
 
-//**************
-//* Properties *
-//**************
-
-/**
- * The user of this package is responsible for defining the Dexcom access options. You can obtain the client ID,
- * client secret, and redirect URI from the Dexcom developer's web site at the following URL:
- * https://developer.dexcom.com/user/me/apps
- *
- * The API URI will either be for Sandbox data (see https://developer.dexcom.com/sandbox-data), or production
- * data (see https://developer.dexcom.com/endpoint-overview).
- */
-DexcomJS.options = {
-  clientId:     '',
-  clientSecret: '',
-  redirectUri:  '',
-  apiUri:       'https://sandbox-api.dexcom.com',
-};
-
-
 //********************
 //* Public Functions *
 //********************
@@ -51,7 +32,7 @@ DexcomJS.options = {
 /**
  * Sets this package's options for accessing the Dexcom platform API.
  *
- * @param options
+ * @param newOptions
  * An object that conforms to the following format:
  * {
  *   clientId: string,
@@ -60,9 +41,8 @@ DexcomJS.options = {
  *   apiUri: string
  * }
  */
-DexcomJS.setOptions = function(options) {
-  helpers.validateOptions(options);
-  this.options = options;
+DexcomJS.setOptions = function(newOptions) {
+  options.set(newOptions);
 };
 
 /**
@@ -86,22 +66,22 @@ DexcomJS.setOptions = function(options) {
  *
  * Notes:
  *
- * 1. Dexcom access tokens are not JSON Web Tokens (JWTs).
+ * 1. Dexcom access tokens are not guaranteed to be JSON Web Tokens (JWTs).
  * 2. The timestamp property represents the time, in epoch milliseconds, when the Dexcom access token was obtained.
  *    Downstream users may use the timestamp and the expires_in values to determine if the Dexcom access token has
  *    expired and must be refreshed.
  */
 DexcomJS.getSandboxAuthenticationToken = async function(authcode) {
-  helpers.validateOptions(this.options);
+  helpers.validateOptions(options.get());
   helpers.validateSandboxAuthcode(authcode);
 
   // Issue an HTTP POST to the Dexcom system to obtain the sandbox access token.
   const urlEncodedForm = querystring.stringify({
-    client_id:     this.options.clientId,
-    client_secret: this.options.clientSecret,
+    client_id:     options.get().clientId,
+    client_secret: options.get().clientSecret,
     code:          authcode,
     grant_type:    'authorization_code',
-    redirect_uri:  this.options.redirectUri,
+    redirect_uri:  options.get().redirectUri,
   });
   const httpConfig = {
     headers: {
@@ -160,7 +140,7 @@ DexcomJS.getSandboxAuthenticationToken = async function(authcode) {
  * @see https://developer.dexcom.com/get-egvs
  */
 DexcomJS.getEstimatedGlucoseValues = async function(oauthTokens, startTime, endTime) {
-  helpers.validateOptions(this.options);
+  helpers.validateOptions(options.get());
   helpers.validateOAuthTokens(oauthTokens);
   helpers.validateTimeWindow(startTime, endTime);
 
@@ -170,7 +150,7 @@ DexcomJS.getEstimatedGlucoseValues = async function(oauthTokens, startTime, endT
   const parameters                   = { startDate: startDateString, endDate: endDateString };
   const httpConfig                   = { headers: {Authorization:  `Bearer ${possiblyRefreshedOauthTokens.dexcomOAuthToken.access_token}`}, params: parameters };
 
-  const result = await httpClient.get(`${this.options.apiUri}/v2/users/self/egvs`, httpConfig);
+  const result = await httpClient.get(`${options.get().apiUri}/v2/users/self/egvs`, httpConfig);
 
   const returnValue = {estimatedGlucoseValues: result.data};
   if (possiblyRefreshedOauthTokens !== oauthTokens) {
@@ -221,7 +201,7 @@ DexcomJS.getEstimatedGlucoseValues = async function(oauthTokens, startTime, endT
  * @see https://developer.dexcom.com/get-events
  */
 DexcomJS.getEvents = async function(oauthTokens, startTime, endTime) {
-  helpers.validateOptions(this.options);
+  helpers.validateOptions(options.get());
   helpers.validateOAuthTokens(oauthTokens);
   helpers.validateTimeWindow(startTime, endTime);
 
@@ -231,7 +211,7 @@ DexcomJS.getEvents = async function(oauthTokens, startTime, endTime) {
   const parameters                   = { startDate: startDateString, endDate: endDateString };
   const httpConfig                   = { headers: {Authorization:  `Bearer ${possiblyRefreshedOauthTokens.dexcomOAuthToken.access_token}`}, params: parameters };
 
-  const result = await httpClient.get(`${this.options.apiUri}/v2/users/self/events`, httpConfig);
+  const result = await httpClient.get(`${options.get().apiUri}/v2/users/self/events`, httpConfig);
 
   const returnValue = {events: result.data};
   if (possiblyRefreshedOauthTokens !== oauthTokens) {
@@ -274,13 +254,13 @@ DexcomJS.getEvents = async function(oauthTokens, startTime, endTime) {
  * @see https://developer.dexcom.com/get-datarange
  */
 DexcomJS.getDataRange = async function(oauthTokens) {
-  helpers.validateOptions(this.options);
+  helpers.validateOptions(options.get());
   helpers.validateOAuthTokens(oauthTokens);
 
   const possiblyRefreshedOauthTokens = await helpers.refreshAccessToken(oauthTokens, false);
   const httpConfig                   = { headers: {Authorization:  `Bearer ${possiblyRefreshedOauthTokens.dexcomOAuthToken.access_token}`}};
 
-  const result = await httpClient.get(`${this.options.apiUri}/v2/users/self/dataRange`, httpConfig);
+  const result = await httpClient.get(`${options.get().apiUri}/v2/users/self/dataRange`, httpConfig);
 
   const returnValue = {dataRange: result.data};
   if (possiblyRefreshedOauthTokens !== oauthTokens) {
@@ -331,7 +311,7 @@ DexcomJS.getDataRange = async function(oauthTokens) {
  * @see https://developer.dexcom.com/get-calibrations
  */
 DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
-  helpers.validateOptions(this.options);
+  helpers.validateOptions(options.get());
   helpers.validateOAuthTokens(oauthTokens);
   helpers.validateTimeWindow(startTime, endTime);
 
@@ -341,7 +321,7 @@ DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
   const parameters                   = { startDate: startDateString, endDate: endDateString };
   const httpConfig                   = { headers: {Authorization:  `Bearer ${possiblyRefreshedOauthTokens.dexcomOAuthToken.access_token}`}, params: parameters };
 
-  const result = await httpClient.get(`${this.options.apiUri}/v2/users/self/calibrations`, httpConfig);
+  const result = await httpClient.get(`${options.get().apiUri}/v2/users/self/calibrations`, httpConfig);
 
   const returnValue = {calibrations: result.data};
   if (possiblyRefreshedOauthTokens !== oauthTokens) {
@@ -392,7 +372,7 @@ DexcomJS.getCalibrations = async function(oauthTokens, startTime, endTime) {
  * @see https://developer.dexcom.com/post-statistics
  */
 DexcomJS.getStatistics = async function(oauthTokens, startTime, endTime) {
-  helpers.validateOptions(this.options);
+  helpers.validateOptions(options.get());
   helpers.validateOAuthTokens(oauthTokens);
   helpers.validateTimeWindow(startTime, endTime);
 
@@ -445,7 +425,7 @@ DexcomJS.getStatistics = async function(oauthTokens, startTime, endTime) {
     ]
   };
 
-  const result = await httpClient.post(`${this.options.apiUri}/v2/users/self/statistics`, requestBody, httpConfig);
+  const result = await httpClient.post(`${options.get().apiUri}/v2/users/self/statistics`, requestBody, httpConfig);
 
   const returnValue = {statistics: result.data};
   if (possiblyRefreshedOauthTokens !== oauthTokens) {
