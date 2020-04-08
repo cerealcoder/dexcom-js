@@ -15,6 +15,26 @@ const schema    = require('./schema.js');
 
 
 //*************
+//* Constants *
+//*************
+
+/**
+ * The number of milliseconds in one second.
+ *
+ * @type {number}
+ */
+const millisecondsPerSecond = 1000;
+
+/**
+ * The time, in seconds, prior to the actual expiration time of an access token, at which an access token will be
+ * considered to be expired.
+ *
+ * @type {number}
+ */
+const aboutToExpireThresholdSeconds = 60;
+
+
+//*************
 //* Functions *
 //*************
 
@@ -120,6 +140,78 @@ function dexcomifyEpochTime(epochTime) {
   return dateString;
 }
 
+/**
+ * Uses the Dexcom OAuth API to obtain a new access token if the access token passed to this function has expired,
+ * or is about to expire.
+ *
+ * @param oauthTokens
+ * An object of the following format:
+ * {
+ *   "timestamp": epochMilliseconds,
+ *   "dexcomOAuthToken": {
+ *     "access_token": "your access token",
+ *     "expires_in": timeToLiveInSeconds,
+ *     "token_type": "Bearer",
+ *     "refresh_token": "your refresh token"
+ *   }
+ * }
+ *
+ * @param force
+ * A boolean value that indicates if a new access token is to be acquired, regardless of the state of the access
+ * token passed to this function.
+ *
+ * @returns a Promise that wraps an Object of the following format:
+ * {
+ *   "timestamp": epochMilliseconds,
+ *   "dexcomOAuthToken": {
+ *     "access_token": "your access token",
+ *     "expires_in": timeToLiveInSeconds,
+ *     "token_type": "Bearer",
+ *     "refresh_token": "your refresh token"
+ *   }
+ * }
+ *
+ * Notes:
+ *
+ * 1. Dexcom access tokens are not guaranteed to be JSON Web Tokens (JWTs).
+ * 2. The timestamp property represents the time, in epoch milliseconds, when the Dexcom access token was obtained.
+ *    Downstream users may use the timestamp and the dexcomOAuthToken.expires_in values to determine if the Dexcom
+ *    access token has expired and must be refreshed.
+ */
+async function refreshAccessToken(oauthTokens, force) {
+  if (!force &&
+    (Date.now() + (aboutToExpireThresholdSeconds * millisecondsPerSecond) <
+      oauthTokens.timestamp + (oauthTokens.dexcomOAuthToken.expires_in * millisecondsPerSecond)))
+  {
+    return oauthTokens;
+  }
+
+  // @see https://developer.dexcom.com/authentication
+  // Step Six: Refresh Tokens
+  const urlEncodedForm = querystring.stringify({
+    client_id:     this.options.clientId,
+    client_secret: this.options.clientSecret,
+    refresh_token: oauthTokens.dexcomOAuthToken.refresh_token,
+    grant_type:    'refresh_token',
+    redirect_uri:  this.options.redirectUri,
+  });
+  const httpConfig = {
+    headers: {
+      "cache-control": "no-cache",
+      "Content-Type":  "application/x-www-form-urlencoded"
+    }
+  };
+
+  const result = await httpClient.post(this.options.apiUri + '/v2/oauth2/token', urlEncodedForm, httpConfig);
+  //console.log(result.status);
+  //console.log(result.data);
+
+  return {
+    timestamp:        new Date().getTime(),
+    dexcomOAuthToken: result.data,
+  };
+}
+
 
 //**************
 //* Public API *
@@ -130,3 +222,4 @@ exports.validateSandboxAuthcode = validateSandboxAuthcode;
 exports.dexcomifyEpochTime      = dexcomifyEpochTime;
 exports.validateTimeWindow      = validateTimeWindow;
 exports.validateOAuthTokens     = validateOAuthTokens;
+exports.refreshAccessToken      = refreshAccessToken;
