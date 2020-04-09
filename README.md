@@ -2,12 +2,12 @@
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
   * [Configuration](#configuration)
-  * [Determine if estimated glucose values exist](#determine-if-estimated-glucose-values-exist)
-  * [Get estimated glucose values](#get-estimated-glucose-values)
+  * [Determine if estimated glucose values exist for the previous 24 hours](#determine-if-estimated-glucose-values-exist-for-the-previous-24-hours)
+  * [Get estimated glucose values for the previous 24 hours](#get-estimated-glucose-values-for-the-previous-24-hours)
 - [API](#api)
-  * [setOptions](#setOptions-options)
-  * [getSandboxAuthenticationToken](#getSandboxAuthenticationToken-authcode)
-  * [getEstimatedGlucoseValues](getEstimatedGlucoseValues-oauthTokens-startTime-endTime)
+  * [setOptions](#setOptions)
+  * [getSandboxAuthenticationToken](#getSandboxAuthenticationToken)
+  * [getEstimatedGlucoseValues](getEstimatedGlucoseValues)
 - [Testing](#testing)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
@@ -138,7 +138,10 @@ if (oauthTokens in results) {
 
 # API
 
-## setOptions(options)
+## setOptions
+
+`setOptions(options)`
+
 Sets the options that will be used when refreshing an expired OAuth 2.0 access token. 
 
 Argument `options` is an object that contains the following properties:
@@ -154,7 +157,10 @@ Note that the `redirectUri` property will not be accessed by Dexcom's systems as
 by the Dexcom API during the process of refreshing an expired access token.
 
 
-## getSandboxAuthenticationToken(authcode)
+## getSandboxAuthenticationToken
+
+`getSandboxAuthenticationToken(authcode)`
+
 Obtains a Dexcom OAuth 2.0 access token for the Dexcom "sandbox" data.
 
 Argument `authcode` is a String that may be any of the following values:
@@ -181,8 +187,11 @@ The return value is a Promise that wraps an Object with the following properties
 ```
 
 
-## getEstimatedGlucoseValues(oauthTokens, startTime, endTime)
-Obtains the estimated glucose values for the date range specified by arguments `startDate` and `endDate`. 
+## getEstimatedGlucoseValues
+
+`getEstimatedGlucoseValues(oauthTokens, startTime, endTime)`
+
+Obtains the estimated glucose values for the time range specified by arguments `startDate` and `endDate`. 
 
 Argument `oauthTokens` is an Object that contains the following properties:
 
