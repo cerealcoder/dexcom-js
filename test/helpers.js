@@ -187,7 +187,7 @@ test('Verify validateOAuthTokens()', function (t) {
 
 test('Verify refreshAccessToken()', async function (t) {
   const oauthTokens = await index.getSandboxAuthenticationToken('authcode6');
-  const result      = await unitUnderTest.refreshAccessToken(oauthTokens, true);
+  const result      = await unitUnderTest.refreshAccessToken(options, oauthTokens, true);
 
   t.ok('timestamp'        in result, 'result contains timestamp');
   t.ok('dexcomOAuthToken' in result, 'result contains dexcomOAuthToken');

@@ -14,7 +14,6 @@ const assert      = require('assert');
 const Validator   = require('jsonschema').Validator;
 const schema      = require('./schema.js');
 const querystring = require('querystring');
-const options     = require('./options.js');
 
 
 //*************
@@ -147,6 +146,10 @@ function dexcomifyEpochTime(epochTime) {
  * Uses the Dexcom OAuth API to obtain a new access token if the access token passed to this function has expired,
  * or is about to expire.
  *
+ * @param options
+ * The Dexcom access options. The caller is assumed to have validated the options object prior to invoking this
+ * function.
+ *
  * @param oauthTokens
  * An object of the following format:
  * {
@@ -181,7 +184,7 @@ function dexcomifyEpochTime(epochTime) {
  *    Downstream users may use the timestamp and the dexcomOAuthToken.expires_in values to determine if the Dexcom
  *    access token has expired and must be refreshed.
  */
-async function refreshAccessToken(oauthTokens, force) {
+async function refreshAccessToken(options, oauthTokens, force) {
   if (!force &&
     (Date.now() + (aboutToExpireThresholdSeconds * millisecondsPerSecond) <
       oauthTokens.timestamp + (oauthTokens.dexcomOAuthToken.expires_in * millisecondsPerSecond)))
@@ -192,11 +195,11 @@ async function refreshAccessToken(oauthTokens, force) {
   // @see https://developer.dexcom.com/authentication
   // Step Six: Refresh Tokens
   const urlEncodedForm = querystring.stringify({
-    client_id:     options.get().clientId,
-    client_secret: options.get().clientSecret,
+    client_id:     options.clientId,
+    client_secret: options.clientSecret,
     refresh_token: oauthTokens.dexcomOAuthToken.refresh_token,
     grant_type:    'refresh_token',
-    redirect_uri:  options.get().redirectUri,
+    redirect_uri:  options.redirectUri,
   });
   const httpConfig = {
     headers: {
@@ -205,7 +208,7 @@ async function refreshAccessToken(oauthTokens, force) {
     }
   };
 
-  const result = await httpClient.post(`${options.get().apiUri}/v2/oauth2/token`, urlEncodedForm, httpConfig);
+  const result = await httpClient.post(`${options.apiUri}/v2/oauth2/token`, urlEncodedForm, httpConfig);
   //console.log(result.status);
   //console.log(result.data);
 
