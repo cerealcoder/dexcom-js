@@ -267,4 +267,4 @@ order to function properly.
 
    Non-interactively:
 
-        docker-compose run datatest
+            docker-compose -f test/docker-compose.yml run datatest

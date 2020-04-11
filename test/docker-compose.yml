@@ -14,4 +14,4 @@ services:
     volumes:
     - $HOME/.aws/:/root/.aws/:ro
     - ../:/home/test/
-    command: 'bash -c "cd /home/test/test;npm install;npm test *.js"'
+    command: 'bash -c "cd /home/test/;npm install;cd test;npm install;npm test *.js"'
