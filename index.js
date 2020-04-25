@@ -14,6 +14,7 @@
 const httpClient  = require('axios');
 const querystring = require('querystring');
 const helpers     = require('./helpers.js');
+const _           = require('underscore');
 
 
 //**************
@@ -171,7 +172,90 @@ DexcomJS.getEstimatedGlucoseValues = async function(oauthTokens, startTime, endT
   return returnValue;
 };
 
+
+DexcomJS.getEstimatedGlucoseValuesAnyDateRange  = async function(oauthTokens, startTime, endTime) {
+  helpers.validateOptions(this.options);
+  helpers.validateOAuthTokens(oauthTokens);
+  helpers.validateTimeWindow(startTime, endTime);
+
+  const possiblyRefreshedOauthTokens = await helpers.refreshAccessToken(this.options, oauthTokens, false);
+
+  //
+  // split the data range up into 89 day ranges (90 is the max, we're skirting around rounding issues by going one less than that)
+  //
+  const maxTimeRangeMilliSec = 89 * 86400 * 1000;
+  let timeIndex = startTime;
+  const times = [];
+  while (timeIndex <= endTime) {
+    let endTimeWindow = timeIndex + maxTimeRangeMilliSec;
+    endTimeWindow = endTimeWindow <= endTime? endTimeWindow : endTime;
+    times.push({
+      startTime: timeIndex,
+      endTime: endTimeWindow,
+    });
+    timeIndex = timeIndex + maxTimeRangeMilliSec;
+  }
+  const requests = times.map(el => {
+    const startDateString              = helpers.dexcomifyEpochTime(el.startTime);
+    const endDateString                = helpers.dexcomifyEpochTime(el.endTime);
+    const parameters                   = { startDate: startDateString, endDate: endDateString };
+    const httpConfig                   = { headers: {Authorization:  `Bearer ${possiblyRefreshedOauthTokens.dexcomOAuthToken.access_token}`}, params: parameters };
+    return httpClient.get(`${this.options.apiUri}/v2/users/self/egvs`, httpConfig);
+  });
+  const results = await Promise.all(requests);
+  const combinedEgvs = results.reduce((a, el)  => {
+    // @see https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+    return a.concat(el.data.egvs);
+  }, []);
+
+  const returnValue = {
+    estimatedGlucoseValues: {
+      unit: results[0].unit,          // ugh, 0 may not exist, and each fetched time period in theory could have different units
+      rateUnit: results[0].rateUnit,  // ugh, 0 may not exist, and each fetched time period in theory could have different units
+      egvs: combinedEgvs,
+    }
+  };
+  if (possiblyRefreshedOauthTokens !== oauthTokens) {
+    returnValue['oauthTokens'] = possiblyRefreshedOauthTokens;
+  }
+  return returnValue;
+};
+
 /**
+ * @brief chunks time series data up into 1 day chunks
+ *
+ * @param data
+ * Data is an object that includes the element `epochTimeMilliSec`.  This data
+ * is assumed to have already been sorted
+ *
+ * @param async callback
+ * A function that will be called for every chunk (e.g. you can write the data to a database)
+ *
+ * @returns an array of chunks
+ *
+ */
+DexcomJS.chunkDataByDay = function(data) {
+
+  let currentDate = new Date(data[0].epochTimeMilliSec);
+  let currentDay = currentDate.getDay();
+  let currentTime = currentDate.getTime();
+
+  const chunked = _.groupBy(data, el => {
+    const thisDate = new Date(el.epochTimeMilliSec);
+    if (thisDate.getDay() != currentDay) {
+      // make a new chunk
+      currentDate = thisDate;
+      currentDay = currentDate.getDay();
+      currentTime = currentDate.getTime();
+    }
+    // put into chunk that is labeled by the time
+    return currentTime;
+  });
+  return chunked;
+};
+
+
+/*
  * @brief Gets the Dexcom user-specified events for a particular date range.
  *
  * @param oauthTokens

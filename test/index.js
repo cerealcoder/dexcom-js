@@ -61,6 +61,30 @@ test('Verify we can obtain estimated glucose values for SandboxUser2', async fun
   t.ok(!('oauthTokens' in result), 'result does not contain oauthTokens');
 });
 
+test('Verify we can chunk data up', async function (t) {
+  // get greater than 1 week's worth of data
+  // @see https://developer.dexcom.com/sandbox-data
+  // @see https://www.epochconverter.com/
+  const startTime = 1447858800000; // 2015-11-18T15:00:00
+  const endTime   = startTime + 10 * 86400 * 1000;
+
+  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
+  const result      = await unitUnderTest.getEstimatedGlucoseValues(oauthTokens, startTime, endTime);
+
+  const normalized = result.estimatedGlucoseValues.egvs.map(el => {
+    return {
+      // NOTE: must match the graphql schema
+      epochTimeMilliSec: new Date(el.systemTime).getTime(),
+      mfgrId: 'foo',
+      event: el,
+    };
+  });
+
+  const chunked = unitUnderTest.chunkDataByDay(normalized);
+  const keys = Object.keys(chunked);
+  t.equal(keys.length, 11, '11 days of data returned');
+});
+
 test('Verify we can obtain events for SandboxUser2', async function (t) {
   // @see https://developer.dexcom.com/sandbox-data
   // @see https://www.epochconverter.com/
@@ -109,6 +133,32 @@ test('Verify we can obtain calibration events for SandboxUser2', async function 
   // Since the authorization tokens have not expired, we do not expect any new tokens to be returned.
   t.ok(!('oauthTokens' in results), 'results does not contain oauthTokens');
 });
+
+/*
+ * XXX very long test, probably not needed
+test('Verify we can obtain estimated glucose values for SandboxUser2 for an entire available date range', async function (t) {
+
+  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
+  const dataRange   = await unitUnderTest.getDataRange(oauthTokens);
+
+  const startTime = new Date(dataRange.dataRange.egvs.start.systemTime).getTime();
+  const endTime   = new Date(dataRange.dataRange.egvs.end.systemTime).getTime();
+
+  const result    = await unitUnderTest.getEstimatedGlucoseValuesAnyDateRange(oauthTokens, startTime, endTime);
+
+
+  t.ok('estimatedGlucoseValues' in result,                        'result contains estimatedGlucoseValues');
+  t.ok('unit'                   in result.estimatedGlucoseValues, 'result.estimatedGlucoseValues contains unit');
+  t.ok('rateUnit'               in result.estimatedGlucoseValues, 'result.estimatedGlucoseValues contains rateUnit');
+  t.ok('egvs'                   in result.estimatedGlucoseValues, 'result.estimatedGlucoseValues contains egvs');
+  t.ok(Array.isArray(result.estimatedGlucoseValues.egvs),         'result.estimatedGlucoseValues.egvs is an array');
+  t.ok(result.estimatedGlucoseValues.egvs.length > 250000,       'result.estimatedGlucoseValues.egvs.length is > 250000');
+
+  // Since the authorization tokens have not expired, we do not expect any new tokens to be returned.
+  t.ok(!('oauthTokens' in result), 'result does not contain oauthTokens');
+});
+*/
+
 
 test('Verify we can obtain summary statistics for SandboxUser2', async function (t) {
   // @see https://developer.dexcom.com/sandbox-data
