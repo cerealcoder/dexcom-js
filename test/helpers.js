@@ -189,6 +189,21 @@ test('Verify refreshAccessToken()', async function (t) {
   const oauthTokens = await index.getSandboxAuthenticationToken('authcode6');
   const result      = await unitUnderTest.refreshAccessToken(options, oauthTokens, true);
 
+  console.log(oauthTokens);
+  console.log(result);
+  t.ok('timestamp'        in result, 'result contains timestamp');
+  t.ok('dexcomOAuthToken' in result, 'result contains dexcomOAuthToken');
+});
+
+test('Verify refreshAccessToken() with an old token', async function (t) {
+  const oauthTokens = await index.getSandboxAuthenticationToken('authcode5');
+
+  // this token appears to work no matter what the user is.   wut....
+  oauthTokens.dexcomOAuthToken.refresh_token = 'f1749e8056cfebce02e29e903226dd17';
+  const result      = await unitUnderTest.refreshAccessToken(options, oauthTokens, true);
+
+  //console.log(oauthTokens);
+  //console.log(result);
   t.ok('timestamp'        in result, 'result contains timestamp');
   t.ok('dexcomOAuthToken' in result, 'result contains dexcomOAuthToken');
 });

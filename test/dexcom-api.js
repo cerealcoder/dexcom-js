@@ -30,18 +30,6 @@ unitUnderTest.setOptions(options);
 //* Unit Tests *
 //**************
 
-test('Verify we can obtain authentication tokens for SandboxUser1', async function (t) {
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode1');
-  // console.log(result);
-
-  t.ok(oauthTokens.timestamp,                      'result contains timestamp');
-  t.ok(oauthTokens.dexcomOAuthToken,               'result contains dexcomOAuthToken');
-  t.ok(oauthTokens.dexcomOAuthToken.access_token,  'result contains dexcomOAuthToken.access_token');
-  t.ok(oauthTokens.dexcomOAuthToken.expires_in,    'result contains dexcomOAuthToken.expires_in');
-  t.ok(oauthTokens.dexcomOAuthToken.token_type,    'result contains dexcomOAuthToken.token_type');
-  t.ok(oauthTokens.dexcomOAuthToken.refresh_token, 'result contains dexcomOAuthToken.refresh_token');
-});
-
 test('Verify we can obtain estimated glucose values for SandboxUser2', async function (t) {
   // @see https://developer.dexcom.com/sandbox-data
   // @see https://www.epochconverter.com/
@@ -59,30 +47,6 @@ test('Verify we can obtain estimated glucose values for SandboxUser2', async fun
 
   // Since the authorization tokens have not expired, we do not expect any new tokens to be returned.
   t.ok(!('oauthTokens' in result), 'result does not contain oauthTokens');
-});
-
-test('Verify we can chunk data up', async function (t) {
-  // get greater than 1 week's worth of data
-  // @see https://developer.dexcom.com/sandbox-data
-  // @see https://www.epochconverter.com/
-  const startTime = 1447858800000; // 2015-11-18T15:00:00
-  const endTime   = startTime + 10 * 86400 * 1000;
-
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const result      = await unitUnderTest.getEstimatedGlucoseValues(oauthTokens, startTime, endTime);
-
-  const normalized = result.estimatedGlucoseValues.egvs.map(el => {
-    return {
-      // NOTE: must match the graphql schema
-      epochTimeMilliSec: new Date(el.systemTime).getTime(),
-      mfgrId: 'foo',
-      event: el,
-    };
-  });
-
-  const chunked = unitUnderTest.chunkDataByDay(normalized);
-  const keys = Object.keys(chunked);
-  t.equal(keys.length, 11, '11 days of data returned');
 });
 
 test('Verify we can obtain events for SandboxUser2', async function (t) {

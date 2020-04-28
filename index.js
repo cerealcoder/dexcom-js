@@ -63,8 +63,9 @@ DexcomJS.setOptions = function(newOptions) {
  *
  * @see https://developer.dexcom.com/sandbox-data
  *
- * @param authcode
- * The Sandbox authorization code ('authcode1', 'authcode2', ..., 'authcode6').
+ * @param user
+ * the sandbox user name such as 'SandBoxUser1', 'SandBoxser2', ..., 'SandBoxUser6').
+ * WAS: The Sandbox authorization code ('authcode1', 'authcode2', ..., 'authcode6').
  *
  * @returns a Promise that wraps an Object of the following format:
  * {
@@ -84,30 +85,61 @@ DexcomJS.setOptions = function(newOptions) {
  *    Downstream users may use the timestamp and the expires_in values to determine if the Dexcom access token has
  *    expired and must be refreshed.
  */
-DexcomJS.getSandboxAuthenticationToken = async function(authcode) {
+DexcomJS.getSandboxAuthenticationToken = async function(user) {
   helpers.validateOptions(this.options);
-  helpers.validateSandboxAuthcode(authcode);
+  helpers.validateSandboxAuthcode(user);
+
+  // map over old method (authcode) to new method that uses username as of 4/27/19
+  let userId = user;
+  const origTestApiAuthcode = 'authcode';
+  const lastLetter = user.substring(user.length - 1);
+  if (user.includes(origTestApiAuthcode)) {
+    userId = 'SandboxUser' + lastLetter;
+  }
 
   // Issue an HTTP POST to the Dexcom system to obtain the sandbox access token.
-  const urlEncodedForm = querystring.stringify({
-    client_id:     this.options.clientId,
-    client_secret: this.options.clientSecret,
-    code:          authcode,
-    grant_type:    'authorization_code',
-    redirect_uri:  this.options.redirectUri,
-  });
-  const httpConfig = {
-    headers: {
-      "Content-Type":  "application/x-www-form-urlencoded"
-    }
+  const form = {
+    userId:       userId,
+    clientId:     this.options.clientId,
+    redirectURI:  this.options.redirectUri,
+    state: '',
+    scope: [
+      'egv',
+      'calibrations',
+      'devices',
+      'dataRange',
+      'events',
+      'statistics',
+    ]
   };
-  const result = await httpClient.post('https://sandbox-api.dexcom.com/v2/oauth2/token', urlEncodedForm, httpConfig);
+  //console.log(form);
+  const result = await httpClient.post('https://developer-portal-dot-g5-dexcom-prod-us-5.appspot.com/consent', form);
+  //console.log(result);
   //console.log(result.status);
   //console.log(result.data);
 
+	const authCode = result.data.authCode;
+	const urlEncodedForm = querystring.stringify({
+		client_id:     this.options.clientId,
+		client_secret: this.options.clientSecret,
+		code:          authCode,
+		grant_type:    'authorization_code',
+		redirect_uri:  this.options.redirectUri,
+	});
+	const httpConfig = {
+		headers: {
+			"Content-Type":  "application/x-www-form-urlencoded"
+		}
+  };
+
+  const authResult = await httpClient.post('https://sandbox-api.dexcom.com/v2/oauth2/token', urlEncodedForm);
+
+  //console.log(authResult);
+  //console.log(authResult.data);
+  
   return {
     timestamp:        new Date().getTime(),
-    dexcomOAuthToken: result.data,
+    dexcomOAuthToken: authResult.data,
   };
 };
 
@@ -220,40 +252,6 @@ DexcomJS.getEstimatedGlucoseValuesAnyDateRange  = async function(oauthTokens, st
   }
   return returnValue;
 };
-
-/**
- * @brief chunks time series data up into 1 day chunks
- *
- * @param data
- * Data is an object that includes the element `epochTimeMilliSec`.  This data
- * is assumed to have already been sorted
- *
- * @param async callback
- * A function that will be called for every chunk (e.g. you can write the data to a database)
- *
- * @returns an array of chunks
- *
- */
-DexcomJS.chunkDataByDay = function(data) {
-
-  let currentDate = new Date(data[0].epochTimeMilliSec);
-  let currentDay = currentDate.getDay();
-  let currentTime = currentDate.getTime();
-
-  const chunked = _.groupBy(data, el => {
-    const thisDate = new Date(el.epochTimeMilliSec);
-    if (thisDate.getDay() != currentDay) {
-      // make a new chunk
-      currentDate = thisDate;
-      currentDay = currentDate.getDay();
-      currentTime = currentDate.getTime();
-    }
-    // put into chunk that is labeled by the time
-    return currentTime;
-  });
-  return chunked;
-};
-
 
 /*
  * @brief Gets the Dexcom user-specified events for a particular date range.

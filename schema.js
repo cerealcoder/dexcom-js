@@ -80,7 +80,13 @@ const sandboxAuthCodes = {
     "authcode3",
     "authcode4",
     "authcode5",
-    "authcode6"
+    "authcode6",
+    "SandboxUser1",
+    "SandboxUser2",
+    "SandboxUser3",
+    "SandboxUser4",
+    "SandboxUser5",
+    "SandboxUser6"
   ]
 };
 

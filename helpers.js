@@ -70,7 +70,7 @@ function validateSandboxAuthcode(authcode) {
 
   const validator = new Validator();
   const validatorResult = validator.validate(authcode, schema.sandboxAuthCodes);
-  assert(validatorResult.valid, 'authcode must be valid');
+  assert(validatorResult.valid, validatorResult.errors.length? validatorResult.errors[0].message : 'unknown error');
 }
 
 /**
