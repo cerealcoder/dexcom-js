@@ -1,6 +1,6 @@
 {
   "name": "dexcom-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An API that provides access to the Dexcom platform for acquiring Continuous Glucose Monitoring data.",
   "main": "index.js",
   "scripts": {
