@@ -14,16 +14,16 @@ const _test         = require('tape-promise').default; // <---- notice 'default'
 const test          = _test(tape); // decorate tape
 const yaml          = require('js-yaml');
 const fs            = require('fs');
-const unitUnderTest = require('../index.js');
+const DexcomJS      = require('../index.js');
 
 
 //*************
 //* Constants *
 //*************
 
-const options = yaml.safeLoad(fs.readFileSync('secrets.yml', 'utf8'));
+const options = yaml.safeLoad(fs.readFileSync('./test/secrets.yml', 'utf8'));
 //console.log(options);
-unitUnderTest.setOptions(options);
+DexcomJS.setOptions(options);
 
 
 //**************
@@ -31,7 +31,7 @@ unitUnderTest.setOptions(options);
 //**************
 
 test('Verify we can obtain authentication tokens for authcode1, the legacy user identifier for Dexcom sandboxes', async function (t) {
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode1');
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode1');
   // console.log(result);
   //
 
@@ -44,7 +44,7 @@ test('Verify we can obtain authentication tokens for authcode1, the legacy user 
 });
 
 test('Verify we can obtain authentication tokens for SandboxUser2', async function (t) {
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('SandboxUser2');
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('SandboxUser2');
   // console.log(result);
 
   t.ok(oauthTokens.timestamp,                      'result contains timestamp');

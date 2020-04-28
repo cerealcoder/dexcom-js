@@ -14,16 +14,16 @@ const _test         = require('tape-promise').default; // <---- notice 'default'
 const test          = _test(tape); // decorate tape
 const yaml          = require('js-yaml');
 const fs            = require('fs');
-const unitUnderTest = require('../index.js');
+const DexcomJS      = require('../index.js');
 
 
 //*************
 //* Constants *
 //*************
 
-const options = yaml.safeLoad(fs.readFileSync('secrets.yml', 'utf8'));
+const options = yaml.safeLoad(fs.readFileSync('./test/secrets.yml', 'utf8'));
 //console.log(options);
-unitUnderTest.setOptions(options);
+DexcomJS.setOptions(options);
 
 
 //**************
@@ -36,8 +36,8 @@ test('Verify we can obtain estimated glucose values for SandboxUser2', async fun
   const startTime = 1447858800000; // 2015-11-18T15:00:00
   const endTime   = 1447862400000; // 2015-11-18T16:00:00
 
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const result      = await unitUnderTest.getEstimatedGlucoseValues(oauthTokens, startTime, endTime);
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode2');
+  const result      = await DexcomJS.getEstimatedGlucoseValues(oauthTokens, startTime, endTime);
 
   t.ok('estimatedGlucoseValues' in result,                        'result contains estimatedGlucoseValues');
   t.ok('unit'                   in result.estimatedGlucoseValues, 'result.estimatedGlucoseValues contains unit');
@@ -55,8 +55,8 @@ test('Verify we can obtain events for SandboxUser2', async function (t) {
   const startTime = 1447858800000; // 2015-11-18T15:00:00
   const endTime   = 1447862400000; // 2015-11-18T16:00:00
 
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const results     = await unitUnderTest.getEvents(oauthTokens, startTime, endTime);
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode2');
+  const results     = await DexcomJS.getEvents(oauthTokens, startTime, endTime);
 
   t.ok('events' in results,        'results contains events');
   t.ok('events' in results.events, 'results.events contains events');
@@ -68,8 +68,8 @@ test('Verify we can obtain events for SandboxUser2', async function (t) {
 });
 
 test('Verify we can obtain data range statistics for SandboxUser2', async function (t) {
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const results     = await unitUnderTest.getDataRange(oauthTokens);
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode2');
+  const results     = await DexcomJS.getDataRange(oauthTokens);
 
   t.ok('dataRange'    in results,           'results contains dataRange');
   t.ok('calibrations' in results.dataRange, 'results.dataRange contains calibrations');
@@ -86,8 +86,8 @@ test('Verify we can obtain calibration events for SandboxUser2', async function 
   const startTime = 1447804800000; // 2015-11-18T00:00:00
   const endTime   = 1447891199000; // 2015-11-18T23:59:59
 
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const results     = await unitUnderTest.getCalibrations(oauthTokens, startTime, endTime);
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode2');
+  const results     = await DexcomJS.getCalibrations(oauthTokens, startTime, endTime);
 
   t.ok('calibrations' in results,              'results contains calibrations');
   t.ok('calibrations' in results.calibrations, 'results.calibrations contains calibrations');
@@ -102,13 +102,13 @@ test('Verify we can obtain calibration events for SandboxUser2', async function 
  * XXX very long test, probably not needed
 test('Verify we can obtain estimated glucose values for SandboxUser2 for an entire available date range', async function (t) {
 
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const dataRange   = await unitUnderTest.getDataRange(oauthTokens);
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode2');
+  const dataRange   = await DexcomJS.getDataRange(oauthTokens);
 
   const startTime = new Date(dataRange.dataRange.egvs.start.systemTime).getTime();
   const endTime   = new Date(dataRange.dataRange.egvs.end.systemTime).getTime();
 
-  const result    = await unitUnderTest.getEstimatedGlucoseValuesAnyDateRange(oauthTokens, startTime, endTime);
+  const result    = await DexcomJS.getEstimatedGlucoseValuesAnyDateRange(oauthTokens, startTime, endTime);
 
 
   t.ok('estimatedGlucoseValues' in result,                        'result contains estimatedGlucoseValues');
@@ -130,8 +130,8 @@ test('Verify we can obtain summary statistics for SandboxUser2', async function 
   const startTime = 1447804800000; // 2015-11-18T00:00:00
   const endTime   = 1447891199000; // 2015-11-18T23:59:59
 
-  const oauthTokens = await unitUnderTest.getSandboxAuthenticationToken('authcode2');
-  const results     = await unitUnderTest.getStatistics(oauthTokens, startTime, endTime);
+  const oauthTokens = await DexcomJS.getSandboxAuthenticationToken('authcode2');
+  const results     = await DexcomJS.getStatistics(oauthTokens, startTime, endTime);
 
   t.ok('statistics'            in results,            'results contains statistics');
   t.ok('hypoglycemiaRisk'      in results.statistics, 'results.statistics contains hypoglycemiaRisk');

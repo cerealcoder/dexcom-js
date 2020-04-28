@@ -4,18 +4,21 @@
   "description": "An API that provides access to the Dexcom platform for acquiring Continuous Glucose Monitoring data.",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'See README for testing procedure.'"
+    "test": "node_modules/tape/bin/tape"
   },
   "author": "pszabop",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
-    "deep-diff": "^1.0.2",
     "jsonschema": "^1.2.4",
-    "jsonwebtoken": "^8.5.1",
-    "qs": "^6.7.0",
-    "random-js": "^2.1.0",
-    "underscore": "^1.9.1"
+    "qs": "^6.7.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "js-yaml": "^3.13.1",
+    "node-fetch": "^2.6.0",
+    "random-js": "^2.1.0",
+    "tape": "^4.10.1",
+    "tape-promise": "^4.0.0",
+    "underscore": "^1.9.1"
+  }
 }

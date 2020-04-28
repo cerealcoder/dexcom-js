@@ -14,7 +14,6 @@
 const httpClient  = require('axios');
 const querystring = require('querystring');
 const helpers     = require('./helpers.js');
-const _           = require('underscore');
 
 
 //**************

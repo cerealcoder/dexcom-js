@@ -31,18 +31,16 @@ try to use this module from within a web application, the user's web browser wil
 Users of this package are responsible for [acquiring Dexcom OAuth tokens](https://developer.dexcom.com/authentication) 
 and packing those tokens within an object that is passed to most of this package's functions:
 
-```
-{
-  timestamp: epochMilliseconds,
-  dexcomOAuthToken: {
-    access_token:  'your access token',
-    expires_in:    timeToLiveInSeconds,
-    token_type:    'Bearer',
-    refresh_token: 'your refresh token'
-  }
-}
+    {
+      timestamp: epochMilliseconds,
+      dexcomOAuthToken: {
+        access_token:  'your access token',
+        expires_in:    timeToLiveInSeconds,
+        token_type:    'Bearer',
+        refresh_token: 'your refresh token'
+      }
+    }
 
-```
 
 where
 
@@ -60,81 +58,77 @@ and using the new value of that object as an argument to subsequent function cal
 Prior to using any of this package's functions (other than function `setOptions()`), the user must specify the
 properties that provide access to the Dexcom platform:
 
-```
-const DexcomJS = require('@umlss/dexcom-js');
+    const DexcomJS = require('@umlss/dexcom-js');
 
-DexcomJS.setOptions({
-  clientId:     'your application client identifier',
-  clientSecret: 'your application client secret',
-  redirectUri:  'your application redirect uniform resource identifier',
-  apiUri:       'https://api.dexcom.com',
-});
-```
+    DexcomJS.setOptions({
+      clientId:     'your application client identifier',
+      clientSecret: 'your application client secret',
+      redirectUri:  'your application redirect uniform resource identifier',
+      apiUri:       'https://api.dexcom.com',
+    });
 
 ## Determine if estimated glucose values exist for the previous 24 hours
 The following example code illustrates how to use the `getStatistics()` function to determine if there are any
 estimated glucose values over the previous 24-hour period of time:
-```
-const secondsPerDay         = 86400;
-const millisecondsPerSecond = 1000;
 
-const oauthTokens = {
-  timestamp: epochMilliseconds,
-  dexcomOAuthToken: {
-    access_token:  'your access token',
-    expires_in:    timeToLiveInSeconds,
-    token_type:    'Bearer',
-    refresh_token: 'your refresh token'
-  }
-}
+    const secondsPerDay         = 86400;
+    const millisecondsPerSecond = 1000;
 
-const endDate   = new Date().getTime();
-const startDate = endDate - (secondsPerDay * millisecondsPerSecond); 
+    const oauthTokens = {
+      timestamp: epochMilliseconds,
+      dexcomOAuthToken: {
+        access_token:  'your access token',
+        expires_in:    timeToLiveInSeconds,
+        token_type:    'Bearer',
+        refresh_token: 'your refresh token'
+      }
+    }
 
-const results = await DexcomJS.getStatistics(oauthTokens, startDate, endDate);
+    const endDate   = new Date().getTime();
+    const startDate = endDate - (secondsPerDay * millisecondsPerSecond); 
 
-if (('statistics' in results) && results.statistics.nValues) {
-  // Do whatever is appropriate...
-}
+    const results = await DexcomJS.getStatistics(oauthTokens, startDate, endDate);
 
-if ('oauthTokens' in results) {
-  // Store the new OAuth tokens...
-}
-```
+    if (('statistics' in results) && results.statistics.nValues) {
+      // Do whatever is appropriate...
+    }
+
+    if ('oauthTokens' in results) {
+      // Store the new OAuth tokens...
+    }
 
 ## Get estimated glucose values for the previous 24 hours
 The following example code illustrates how to use the `getEstimatedGlucoseValues()` function to obtain data samples
 that were collected over the previous 24-hour period of time:
-```
-const secondsPerDay = 86400;
-const millisecondsPerSecond = 1000;
 
-const oauthTokens = {
-  timestamp: epochMilliseconds,
-  dexcomOAuthToken: {
-    access_token:  'your access token',
-    expires_in:    timeToLiveInSeconds,
-    token_type:    'Bearer',
-    refresh_token: 'your refresh token'
-  }
-}
+    const secondsPerDay = 86400;
+    const millisecondsPerSecond = 1000;
 
-const endDate   = new Date().getTime();
-const startDate = endDate - (secondsPerDay * millisecondsPerSecond); 
+    const oauthTokens = {
+      timestamp: epochMilliseconds,
+      dexcomOAuthToken: {
+        access_token:  'your access token',
+        expires_in:    timeToLiveInSeconds,
+        token_type:    'Bearer',
+        refresh_token: 'your refresh token'
+      }
+    }
 
-const results = await DexcomJS.getEstimatedGlucoseValues(oauthTokens, startDate, endDate);
+    const endDate   = new Date().getTime();
+    const startDate = endDate - (secondsPerDay * millisecondsPerSecond); 
 
-if (estimatedGlucoseValues in results) {
-  // Process the estimated glucose values
-  results.estimatedGlucoseValues.egvs.forEach(item => {
-    // See https://developer.dexcom.com/get-egvs
-  });
-}
+    const results = await DexcomJS.getEstimatedGlucoseValues(oauthTokens, startDate, endDate);
 
-if (oauthTokens in results) {
-  // Store the new OAuth access and refresh tokens...
-}
-```
+    if (estimatedGlucoseValues in results) {
+      // Process the estimated glucose values
+      results.estimatedGlucoseValues.egvs.forEach(item => {
+        // See https://developer.dexcom.com/get-egvs
+      });
+    }
+
+    if (oauthTokens in results) {
+      // Store the new OAuth access and refresh tokens...
+    }
 
 # API
 
@@ -159,33 +153,34 @@ by the Dexcom API during the process of refreshing an expired access token.
 
 ## getSandboxAuthenticationToken
 
-`getSandboxAuthenticationToken(authcode)`
+`getSandboxAuthenticationToken(user)`
 
 Obtains a Dexcom OAuth 2.0 access token for the Dexcom "sandbox" data.
 
-Argument `authcode` is a String that may be any of the following values:
+Argument `user` is a String that may be any of the following values:
 
-* `authcode1`
-* `authcode2`
-* `authcode3`
-* `authcode4`
-* `authcode5`
-* `authcode6`
+* `SandboxUser1`
+* `SandboxUser2`
+* `SandboxUser3`
+* `SandboxUser4`
+* `SandboxUser5`
+* `SandboxUser6`
+
+Note there was a breaking change on Dexcom's part on 4/27/2020.  They used to support
+bypassing most of the authorization system, and one would pass `uauthcode<n>` in instead.
+This is still supported by this module but is deprecated and may go away at some point.
 
 The return value is a Promise that wraps an Object with the following properties:
 
-```
-{
-  "timestamp": epochMilliseconds,
-  "dexcomOAuthToken": {
-    "access_token": "your access token",
-    "expires_in": timeToLiveInSeconds,
-    "token_type": "Bearer",
-    "refresh_token": "your refresh token"
-  }
-}
-```
-
+    {
+      "timestamp": epochMilliseconds,
+      "dexcomOAuthToken": {
+        "access_token": "your access token",
+        "expires_in": timeToLiveInSeconds,
+        "token_type": "Bearer",
+        "refresh_token": "your refresh token"
+      }
+    }
 
 ## getEstimatedGlucoseValues
 
@@ -195,36 +190,32 @@ Obtains the estimated glucose values for the time range specified by arguments `
 
 Argument `oauthTokens` is an Object that contains the following properties:
 
-```
-{
-  "timestamp": epochMilliseconds,
-  "dexcomOAuthToken": {
-    "access_token": "your access token",
-    "expires_in": timeToLiveInSeconds,
-    "token_type": "Bearer",
-    "refresh_token": "your refresh token"
-  }
-}
-```
+    {
+      "timestamp": epochMilliseconds,
+      "dexcomOAuthToken": {
+        "access_token": "your access token",
+        "expires_in": timeToLiveInSeconds,
+        "token_type": "Bearer",
+        "refresh_token": "your refresh token"
+      }
+    }
 
 Arguments `startDate` and `endDate` are integer Numbers in the epoch milliseconds (UTC) format.
 
 The return value is a Promise that wraps an Object with the following properties:
 
-```
-{
-  estimatedGlucoseValues: {<object returned by Dexcom API>},
-  oauthTokens: {
-    "timestamp": epochMilliseconds,
-    "dexcomOAuthToken": {
-      "access_token": "your access token",
-      "expires_in": timeToLiveInSeconds,
-      "token_type": "Bearer",
-      "refresh_token": "your refresh token"
+    {
+      estimatedGlucoseValues: {<object returned by Dexcom API>},
+      oauthTokens: {
+        "timestamp": epochMilliseconds,
+        "dexcomOAuthToken": {
+          "access_token": "your access token",
+          "expires_in": timeToLiveInSeconds,
+          "token_type": "Bearer",
+          "refresh_token": "your refresh token"
+        }
+      }
     }
-  }
-}
-```
 
 See also [https://developer.dexcom.com/get-egvs](https://developer.dexcom.com/get-egvs)
 
@@ -253,18 +244,14 @@ order to function properly.
    Interactively:
    1. Invoke the Docker container's bash shell:
    
-            cd test
             docker-compose run datatest /bin/bash
          
    1. Run the unit tests:
    
             cd /home/test
             npm install
-            cd test
-            npm install
-            npm test helpers.js
-            npm test index.js
+            npm test *.js
 
    Non-interactively:
 
-            docker-compose -f test/docker-compose.yml run datatest
+            docker-compose run datatest

@@ -13,5 +13,5 @@ services:
       - AWS_SDK_LOAD_CONFIG=1
     volumes:
     - $HOME/.aws/:/root/.aws/:ro
-    - ../:/home/test/
-    command: 'bash -c "cd /home/test/;npm install;cd test;npm install;npm test *.js"'
+    - ./:/home/test/
+    command: 'bash -c "cd /home/test/;npm install;npm test test/*.js"'
