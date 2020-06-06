@@ -250,7 +250,7 @@ order to function properly.
    
             cd /home/test
             npm install
-            npm test *.js
+            npm test test/*.js
 
    Non-interactively:
 
