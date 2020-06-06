@@ -88,10 +88,13 @@ function validateSandboxAuthcode(authcode) {
  *   }
  * }
  *
+ * NOTE:  field level validation was commented out because we have no control over what Dexcom decides to do.
+ * It's their token, not ours.
  */
 function validateOAuthTokens(oauthTokens) {
   assert(oauthTokens, 'oauthTokens must be provided');
 
+  /*
   const validator = new Validator();
 
   validator.addSchema(schema.dexcomOAuthToken, '/DexcomOAuthToken');
@@ -99,6 +102,7 @@ function validateOAuthTokens(oauthTokens) {
 
   const validatorResult = validator.validate(oauthTokens, schema.oauthTokens);
   assert(validatorResult.valid, 'oauthTokens must be valid');
+  */
 }
 
 /**
