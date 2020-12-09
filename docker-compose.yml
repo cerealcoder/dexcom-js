@@ -4,7 +4,6 @@ services:
     #image: aws/codebuild/nodejs:8.11.0
     image: node:chakracore-8.11.1
     environment:
-      - CFT_STACK_NAME
       - AWS_ACCESS_KEY 
       - AWS_SECRET_KEY
       - AWS_REGION

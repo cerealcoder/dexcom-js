@@ -14,6 +14,7 @@
 const httpClient  = require('axios');
 const querystring = require('querystring');
 const helpers     = require('./helpers.js');
+const _           = require('lodash');
 
 
 //**************
@@ -140,7 +141,7 @@ DexcomJS.getSandboxAuthenticationToken = async function(user) {
     timestamp:        new Date().getTime(),
     dexcomOAuthToken: authResult.data,
   };
-};
+}
 
 /**
  * @brief Gets the Dexcom estimated glucose values for a particular date range.
@@ -526,3 +527,61 @@ DexcomJS.getStatistics = async function(oauthTokens, startTime, endTime) {
   }
   return returnValue;
 };
+
+
+/*
+ * @brief split data up into an array of daily arrays, sorted by time in forward order
+ *
+ * @param input
+ * Data as received from Dexcom via a function in this modulee
+ *
+ * @see https://developer.dexcom.com/get-events
+ */
+DexcomJS.shardEgvsByDay = function(input) {
+  helpers.validateOptions(this.options);
+
+  const sortedInput = input.sort((e1, e2) => {
+    const e1ms = new Date(e1.systemTime).getTime();
+    const e2ms = new Date(e2.systemTime).getTime();
+    return e1ms - e2ms;
+  });
+  const groupedByDay = _.groupBy(sortedInput, el => {
+    // @see https://stackoverflow.com/questions/3894048/what-is-the-best-way-to-initialize-a-javascript-date-to-midnight
+    const elDate = new Date(el.systemTime);
+    return elDate.setHours(0,0,0,0);  // last midnight
+  });
+  return groupedByDay;
+};
+
+/**
+ * @brief
+ * calculate a legal fetch range that starts at the midnight prior
+ * to the requested time, or the midnight following if the request3ed
+ * time is less than the valid time ranges Dexcom has returned
+ */
+DexcomJS.rangeInDayIntervals = function(dataRange, endTime, daysPast) {
+  const returnValue = {
+    startTime: 0,
+    endTime: 0,
+    valid: false,
+  }
+
+  const startDateString = dataRange.start.systemTime;
+  const endDateString = dataRange.end.systemTime;
+  let startTime = endTime - daysPast *  86400 * 1000;
+  // go back to midnight of start time if possible
+  const midnightStartTime = new Date(startTime).setHours(0,0,0,0);
+  const availableStartTime = new Date(startDateString);
+  startTime = midnightStartTime;
+  if (midnightStartTime < availableStartTime.getTime()) {
+    const actualStartTime = availableStartTime.setHours(24,0,0,0);
+    if (actualStartTime >= endTime) {
+      console.log('no data available');
+      return returnValue;
+    }
+  }
+  returnValue.startTime = startTime;
+  returnValue.endTime = endTime;
+  returnValue.valid = true;
+  return returnValue;
+}
