@@ -574,11 +574,7 @@ DexcomJS.rangeInDayIntervals = function(dataRange, endTime, daysPast) {
   const availableStartTime = new Date(startDateString);
   startTime = midnightStartTime;
   if (midnightStartTime < availableStartTime.getTime()) {
-    const actualStartTime = availableStartTime.setHours(24,0,0,0);
-    if (actualStartTime >= endTime) {
-      console.log('no data available');
-      return returnValue;
-    }
+    startTime = availableStartTime.getTime();
   }
   returnValue.startTime = startTime;
   returnValue.endTime = endTime;

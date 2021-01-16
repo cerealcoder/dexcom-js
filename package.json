@@ -1,10 +1,10 @@
 {
   "name": "dexcom-js",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "An API that provides access to the Dexcom platform for acquiring Continuous Glucose Monitoring data.",
   "repository": {
-      "type" : "git",
-        "url" : "https://github.com/cerealcoder/dexcom-js"
+    "type": "git",
+    "url": "https://github.com/cerealcoder/dexcom-js"
   },
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "author": "pszabop",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "jsonschema": "^1.2.4",
     "lodash": "^4.17.20",
     "qs": "^6.7.0"
