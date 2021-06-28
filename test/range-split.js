@@ -74,7 +74,7 @@ test('Verify we can obtain data range statistics for SandboxUser2 followd by las
   const beginData = await DexcomJS.getEstimatedGlucoseValues(oauthTokens, earlyFetchTimes.startTime, earlyFetchTimes.endTime);
   const beginEgvs = beginData.estimatedGlucoseValues.egvs;
   const beginGroupedByDay = DexcomJS.shardEgvsByDay(beginEgvs);
-  console.log(Object.keys(beginGroupedByDay));
+  console.log(beginGroupedByDay);
   t.equal(Object.keys(beginGroupedByDay).length, 7, 'going a week back to midnight before valid start date gets 7 days of data');
 
 });
